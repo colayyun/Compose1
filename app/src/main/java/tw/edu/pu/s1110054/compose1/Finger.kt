@@ -1,67 +1,65 @@
 package tw.edu.pu.s1110054.compose1
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 
-class Finger(context: Context?) : View(context) {
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    //var xPos:Float = 200f
-    //var yPos:Float = 200f
-
-    var Count:Int = 0;
-    var xPos = FloatArray(20)
-    var yPos = FloatArray(20)
-    var rainbow = IntArray(7)
-
-    lateinit var bitmap: Bitmap
-
-    init {
-        rainbow = resources.getIntArray(R.array.rainbow) // 修正語法
-        bitmap = BitmapFactory.decodeResource(resources, R.drawable.robot)
-    }
-
-
+class Finger(context: Context) : View(context), ScaleGestureDetector.OnScaleGestureListener {
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var Count: Int = 0
+    private val xPos = FloatArray(20)
+    private val yPos = FloatArray(20)
+    private val rainbow: IntArray = resources.getIntArray(R.array.rainbow)
+    private val bitmap: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.robot)
+    private val sg = ScaleGestureDetector(context, this)
+    private var factor: Float = 1.0f
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawColor(Color.LTGRAY)
 
-        for (i in 0..Count-1) {
+        for (i in 0 until Count) {
             paint.color = rainbow[i % 7]
             canvas.drawCircle(xPos[i], yPos[i], 80f, paint)
         }
 
         paint.color = Color.BLUE
         paint.textSize = 50f
-        canvas.drawText("多指觸控，圓形呈現彩虹顏色！", 50f,200f, paint)
+        canvas.drawText("多指觸控，圓形呈現彩虹顏色！", 50f, 200f, paint)
 
-        var SrcRect: Rect = Rect(0, 0, bitmap.width, bitmap.height) //裁切(顯示全部)
-        var DestRect:Rect = Rect(200, 300,
-            bitmap.width/4+200, bitmap.height/4+300) //原圖較大，縮成1/4顯示
-        canvas.drawBitmap(bitmap, SrcRect, DestRect, paint)
-
+        val scaledWidth = (bitmap.width * factor).toInt()
+        val scaledHeight = (bitmap.height * factor).toInt()
+        val left = (width - scaledWidth) / 2
+        val top = (height - scaledHeight) / 2
+        val destRect = Rect(left, top, left + scaledWidth, top + scaledHeight)
+        canvas.drawBitmap(bitmap, null, destRect, paint)
     }
 
-
-    override fun onTouchEvent(event: MotionEvent): Boolean{
-        //xPos = event.getX()
-        //yPos = event.getY()
-        Count = event.getPointerCount()
-        for (i in 0..Count-1) {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        Count = event.pointerCount.coerceAtMost(20)
+        for (i in 0 until Count) {
             xPos[i] = event.getX(i)
             yPos[i] = event.getY(i)
         }
-
+        sg.onTouchEvent(event)
         invalidate()
         return true
     }
 
+    override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+        return true
+    }
 
+    override fun onScaleEnd(detector: ScaleGestureDetector) {
+        invalidate()
+    }
+
+    override fun onScale(detector: ScaleGestureDetector): Boolean {
+        factor *= detector.scaleFactor
+        factor = factor.coerceIn(0.1f, 5.0f)
+        invalidate()
+        return true
+    }
 }
