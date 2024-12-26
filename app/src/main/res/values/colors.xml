@@ -12,15 +12,15 @@
     <color name="indigo">#4B0082</color><!--靛青色 -->
     <color name="purple">#800080</color><!--紫色 -->
 
-    <array name="rainbow">
-        <item>@color/red</item>
-        <item>@color/orange</item>
-        <item>@color/yellow</item>
-        <item>@color/green</item>
-        <item>@color/blue</item>
-        <item>@color/indigo</item>
-        <item>@color/purple</item>
-    </array>
+    <integer-array name="rainbow">
+        <item>#FF0000</item> <!-- Red -->
+        <item>#FF7F00</item> <!-- Orange -->
+        <item>#FFFF00</item> <!-- Yellow -->
+        <item>#00FF00</item> <!-- Green -->
+        <item>#0000FF</item> <!-- Blue -->
+        <item>#4B0082</item> <!-- Indigo -->
+        <item>#9400D3</item> <!-- Violet -->
+    </integer-array>
 
 
 </resources>
